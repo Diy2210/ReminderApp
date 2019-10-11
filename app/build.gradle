@@ -31,5 +31,6 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.1.0-beta05'
     implementation "androidx.percentlayout:percentlayout:1.0.0"
     implementation 'com.google.android.material:material:1.1.0-beta01'
+    implementation "com.android.support:support-compat:29.0.0"
 
 }

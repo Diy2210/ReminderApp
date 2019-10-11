@@ -1,7 +1,17 @@
 package com.example.reminder.activity.activity;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.example.reminder.R;
@@ -16,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,6 +45,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String NOTIFICATION_ID = "";
     private ReminderAdapter adapter;
     private List<Reminder> reminderList = new ArrayList<>();
     private CoordinatorLayout coordinatorLayout;
@@ -65,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new ItemDecoration(this, LinearLayoutManager.VERTICAL, 16));
         recyclerView.setAdapter(adapter);
 
-        toggleEmptyReminder();
+        emptyReminder();
 
         // Touch Listener
         recyclerView.addOnItemTouchListener(new RecyclerListener(this,
@@ -186,7 +198,8 @@ public class MainActivity extends AppCompatActivity {
         if (reminder != null) {
             reminderList.add(0, reminder);
             adapter.notifyDataSetChanged();
-            toggleEmptyReminder();
+            emptyReminder();
+            notificationShow(title);
         }
     }
 
@@ -199,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
         reminderList.set(position, reminder);
         adapter.notifyItemChanged(position);
 
-        toggleEmptyReminder();
+        emptyReminder();
     }
 
     // Delete Reminder
@@ -207,16 +220,41 @@ public class MainActivity extends AppCompatActivity {
         db.deleteReminder(reminderList.get(position));
         reminderList.remove(position);
         adapter.notifyItemRemoved(position);
-        toggleEmptyReminder();
+        emptyReminder();
     }
 
-    private void toggleEmptyReminder() {
+    private void emptyReminder() {
         if (db.getReminderCount() > 0) {
-//            textView.setVisibility(View.GONE);
             cl.setVisibility(View.GONE);
         } else {
-//            textView.setVisibility(View.VISIBLE);
             cl.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void notificationShow(String title) {
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(this, NOTIFICATION_ID)
+                        .setSmallIcon(R.drawable.ic_alert)
+                        .setContentTitle(getString(R.string.app_name))
+                        .setContentText(title)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setAutoCancel(true)
+                        .setSound(defaultSoundUri);
+//                        .setContentIntent(MainActivity.this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.app_name);
+            String description = title;
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_ID, name, importance);
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+
+            // 0 - ID of notification
+            notificationManager.notify(0, notificationBuilder.build());
         }
     }
 }
