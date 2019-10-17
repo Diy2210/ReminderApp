@@ -1,14 +1,11 @@
 package com.example.reminder.activity.activity;
 
-import android.app.Notification;
+import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -18,6 +15,7 @@ import com.example.reminder.R;
 import com.example.reminder.activity.database.DatabaseHelper;
 import com.example.reminder.activity.database.model.Reminder;
 import com.example.reminder.activity.utils.ItemDecoration;
+import com.example.reminder.activity.utils.Receiver;
 import com.example.reminder.activity.utils.RecyclerListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -36,22 +34,30 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String NOTIFICATION_ID = "";
+    public static final String NOTIFICATION_ID = "";
+    public static final int NOTIFICATION_REMINDER = 100;
+
     private ReminderAdapter adapter;
     private List<Reminder> reminderList = new ArrayList<>();
-    private CoordinatorLayout coordinatorLayout;
     private RecyclerView recyclerView;
     private ConstraintLayout cl;
-    private TextView textView;
     private DatabaseHelper db;
 
     @Override
@@ -61,9 +67,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        coordinatorLayout = findViewById(R.id.coordinator_layout);
+        CoordinatorLayout coordinatorLayout = findViewById(R.id.coordinator_layout);
         recyclerView = findViewById(R.id.recycler_view);
-        textView = findViewById(R.id.emptyTV);
         cl = findViewById(R.id.CL);
 
         db = new DatabaseHelper(this);
@@ -143,18 +148,18 @@ public class MainActivity extends AppCompatActivity {
     // Reminder Dialog
     private void showReminderDialog(final boolean shouldUpdate, final Reminder reminder, final int position) {
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getApplicationContext());
-        View view = layoutInflaterAndroid.inflate(R.layout.add_reminder, null);
+        View view = layoutInflaterAndroid.inflate(R.layout.add_reminder_item, null);
 
         AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilderUserInput.setView(view);
 
-        final EditText timeET = view.findViewById(R.id.timeET);
+        final TimePicker timePicker = view.findViewById(R.id.timePicker);
+        final Switch switchBtn = view.findViewById(R.id.switchBtn);
         final EditText titleET = view.findViewById(R.id.titleET);
         TextView dialogTitle = view.findViewById(R.id.dialogTitleTV);
         dialogTitle.setText(!shouldUpdate ? getString(R.string.lbl_new_reminder_title) : getString(R.string.lbl_edit_reminder_title));
 
         if (shouldUpdate && reminder != null) {
-            timeET.setText(reminder.getTime());
             titleET.setText(reminder.getTitle());
         }
         alertDialogBuilderUserInput
@@ -176,42 +181,76 @@ public class MainActivity extends AppCompatActivity {
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (TextUtils.isEmpty(timeET.getText().toString())) {
-                    Toast.makeText(MainActivity.this, "Enter reminder!", Toast.LENGTH_SHORT).show();
+                switchBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
+                        if (isChecked) {
+                            RAPP.repeatStatus = 1;
+                        } else {
+                            RAPP.repeatStatus = 0;
+                        }
+                    }
+                });
+
+                if (TextUtils.isEmpty(titleET.getText().toString())) {
+                    Toast.makeText(MainActivity.this, "Enter title!", Toast.LENGTH_SHORT).show();
                     return;
                 } else {
                     alertDialog.dismiss();
                 }
                 if (shouldUpdate && reminder != null) {
-                    updateReminder(timeET.getText().toString(), titleET.getText().toString(), position);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+                        calendar.set(Calendar.MINUTE, timePicker.getMinute());
+                        long time = calendar.getTimeInMillis();
+                        updateReminder(time, titleET.getText().toString(), RAPP.repeatStatus, position);
+                    }
                 } else {
-                    createReminder(timeET.getText().toString(), titleET.getText().toString());
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+                        calendar.set(Calendar.MINUTE, timePicker.getMinute());
+                        long time = calendar.getTimeInMillis();
+                        createReminder(time, titleET.getText().toString(), RAPP.repeatStatus);
+                    }
                 }
+
+                // AlarmManager
+                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                Intent intent = new Intent(MainActivity.this, Receiver.class);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, NOTIFICATION_REMINDER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                calendar.set(Calendar.HOUR_OF_DAY, 3);
+                calendar.set(Calendar.MINUTE, 5);
+                calendar.set(Calendar.SECOND, 0);
+
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
             }
         });
     }
 
     // Create Reminder
-    private void createReminder(String time, String title) {
-        long id = db.insertReminder(time, title);
+    private void createReminder(long time, String title, int repeat) {
+        long id = db.insertReminder(time, title, repeat);
         Reminder reminder = db.getReminder(id);
         if (reminder != null) {
             reminderList.add(0, reminder);
             adapter.notifyDataSetChanged();
             emptyReminder();
-            notificationShow(title);
         }
     }
 
     // Update Reminder
-    private void updateReminder(String time, String title, int position) {
+    private void updateReminder(long time, String title, int repeat, int position) {
         Reminder reminder = reminderList.get(position);
         reminder.setTime(time);
         reminder.setTitle(title);
+        reminder.setRepeat(repeat);
         db.updateReminder(reminder);
         reminderList.set(position, reminder);
         adapter.notifyItemChanged(position);
-
         emptyReminder();
     }
 
@@ -223,6 +262,7 @@ public class MainActivity extends AppCompatActivity {
         emptyReminder();
     }
 
+    // Show Empty Reminder List
     private void emptyReminder() {
         if (db.getReminderCount() > 0) {
             cl.setVisibility(View.GONE);
@@ -231,21 +271,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void notificationShow(String title) {
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+    // Notifications
+    public void notificationShow(String time, String title) {
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTimeInMillis(System.currentTimeMillis());
+//        String h = String.valueOf(calendar.get(Calendar.HOUR));
+//        String m = String.valueOf(calendar.get(Calendar.MINUTE));
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm");
+        Calendar calendar = Calendar.getInstance();
+
+        if (dateFormat.format(calendar.getTime()).equals(time)) {
+            Toast.makeText(this, dateFormat.format(calendar.getTime()), Toast.LENGTH_LONG).show();
+        }
+
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, NOTIFICATION_ID)
                         .setSmallIcon(R.drawable.ic_alert)
                         .setContentTitle(getString(R.string.app_name))
-                        .setContentText(title)
+                        .setContentText(time + " " + title)
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri);
-//                        .setContentIntent(MainActivity.this);
+//                            .setContentIntent(this);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.app_name);
-            String description = title;
+            CharSequence name = ("Title");
+            String description = ("Text");
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(NOTIFICATION_ID, name, importance);
             channel.setDescription(description);

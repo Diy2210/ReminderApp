@@ -31,12 +31,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertReminder(String time, String title) {
+    public long insertReminder(long time, String title, int repeat) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(Reminder.COLUMN_REMINDER_TIME, time);
+//        values.put(Reminder.COLUMN_REMINDER_HOUR, hour);
+//        values.put(Reminder.COLUMN_REMINDER_MINUTE, minute);
         values.put(Reminder.COLUMN_REMINDER_TITLE, title);
+        values.put(Reminder.COLUMN_REMINDER_REPEAT, repeat);
         long id = db.insert(Reminder.TABLE_NAME, null, values);
         db.close();
         return id;
@@ -47,7 +50,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(Reminder.TABLE_NAME,
-                new String[]{Reminder.COLUMN_ID, Reminder.COLUMN_REMINDER_TIME, Reminder.COLUMN_REMINDER_TITLE},
+                new String[]{Reminder.COLUMN_ID, Reminder.COLUMN_REMINDER_TIME, Reminder.COLUMN_REMINDER_TITLE, Reminder.COLUMN_REMINDER_REPEAT},
                 Reminder.COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
@@ -57,8 +60,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // prepare note object
         Reminder reminder = new Reminder(
                 cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_ID)),
-                cursor.getString(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TIME)),
-                cursor.getString(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TITLE)));
+                cursor.getLong(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TIME)),
+//                cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_HOUR)),
+//                cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_MINUTE)),
+                cursor.getString(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TITLE)),
+                cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_REPEAT)));
 
         cursor.close();
 
@@ -66,7 +72,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public List<Reminder> getAllReminder() {
-        List<Reminder> notes = new ArrayList<>();
+        List<Reminder> reminders = new ArrayList<>();
 
         // Select All Query
         String selectQuery = "SELECT  * FROM " + Reminder.TABLE_NAME + " ORDER BY " +
@@ -80,14 +86,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             do {
                 Reminder reminder = new Reminder();
                 reminder.setId(cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_ID)));
-                reminder.setTime(cursor.getString(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TIME)));
+                reminder.setTime(cursor.getLong(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TIME)));
+//                reminder.setHour(cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_HOUR)));
+//                reminder.setMinute(cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_MINUTE)));
                 reminder.setTitle(cursor.getString(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TITLE)));
-
-                notes.add(reminder);
+                reminder.setRepeat(cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_REPEAT)));
+                reminders.add(reminder);
             } while (cursor.moveToNext());
         }
         db.close();
-        return notes;
+        return reminders;
     }
 
     public int getReminderCount() {
@@ -106,6 +114,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(Reminder.COLUMN_REMINDER_TIME, reminder.getTime());
+//        values.put(Reminder.COLUMN_REMINDER_HOUR, reminder.getHour());
+//        values.put(Reminder.COLUMN_REMINDER_MINUTE, reminder.getMinute());
+        values.put(Reminder.COLUMN_REMINDER_REPEAT, reminder.getRepeat());
 
         return db.update(Reminder.TABLE_NAME, values, Reminder.COLUMN_ID + " = ?",
                 new String[]{String.valueOf(reminder.getId())});

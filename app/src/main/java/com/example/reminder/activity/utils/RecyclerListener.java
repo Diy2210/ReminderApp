@@ -5,28 +5,12 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class RecyclerListener implements RecyclerView.OnItemTouchListener{
+public class RecyclerListener implements RecyclerView.OnItemTouchListener {
 
     private ClickListener clicklistener;
     private GestureDetector gestureDetector;
-
-//    @Override
-//    public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-//        return false;
-//    }
-//
-//    @Override
-//    public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-//
-//    }
-//
-//    @Override
-//    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-//
-//    }
 
     public RecyclerListener(Context context, final RecyclerView recycleView, final ClickListener clicklistener) {
 
@@ -76,5 +60,4 @@ public class RecyclerListener implements RecyclerView.OnItemTouchListener{
 
         void onLongClick(View view, int position);
     }
-
 }

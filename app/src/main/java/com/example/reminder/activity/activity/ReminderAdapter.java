@@ -1,7 +1,6 @@
 package com.example.reminder.activity.activity;
 
 import android.content.Context;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.reminder.R;
 import com.example.reminder.activity.database.model.Reminder;
 
-import java.text.ParseException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -24,15 +24,18 @@ private Context context;
 private List<Reminder> reminderList;
 
 public class MyViewHolder extends RecyclerView.ViewHolder {
-    public TextView time;
+
+    public TextView timeTV;
     public ImageView img;
     public TextView title;
+    public ImageView repeatImg;
 
     public MyViewHolder(View view) {
         super(view);
         img = view.findViewById(R.id.imageView);
-        time = view.findViewById(R.id.timeTV);
-        title = view.findViewById(R.id.titleTV);
+        timeTV = view.findViewById(R.id.timeTV);
+        title = view.findViewById(R.id.titleET);
+        repeatImg = view.findViewById(R.id.repeatImg);
     }
 }
 
@@ -53,24 +56,21 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     public void onBindViewHolder(MyViewHolder holder, int position) {
         Reminder reminder = reminderList.get(position);
 
-        holder.time.setText(reminder.getTime());
-//        holder.img.setText(Html.fromHtml("&#8226;"));
+        DateFormat simple = new SimpleDateFormat("HH:mm");
+        Date result = new Date(reminder.getTime());
+        String time = simple.format(result);
+
+        holder.timeTV.setText(time);
         holder.title.setText(reminder.getTitle());
+        if (RAPP.repeatStatus == 1) {
+            holder.repeatImg.setVisibility(View.VISIBLE);
+        } else {
+            holder.repeatImg.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public int getItemCount() {
         return reminderList.size();
     }
-
-//    private String formatDate(String dateStr) {
-//        try {
-//            SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            Date date = fmt.parse(dateStr);
-//            SimpleDateFormat fmtOut = new SimpleDateFormat("MMM d");
-//            return fmtOut.format(date);
-//        } catch (ParseException e) {
-//        }
-//        return "";
-//    }
 }
