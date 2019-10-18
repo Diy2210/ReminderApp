@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
@@ -51,7 +52,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String NOTIFICATION_ID = "";
     public static final int NOTIFICATION_REMINDER = 100;
 
     private ReminderAdapter adapter;
@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
                 recyclerView, new RecyclerListener.ClickListener() {
             @Override
             public void onClick(View view, final int position) {
-                //showActionsDialog(position);
             }
 
             @Override
@@ -154,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialogBuilderUserInput.setView(view);
 
         final TimePicker timePicker = view.findViewById(R.id.timePicker);
+        timePicker.setIs24HourView(true);
         final Switch switchBtn = view.findViewById(R.id.switchBtn);
         final EditText titleET = view.findViewById(R.id.titleET);
         TextView dialogTitle = view.findViewById(R.id.dialogTitleTV);
@@ -208,6 +208,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+                        //
+                        RAPP.hourNotification = timePicker.getHour();
+                        RAPP.minuteNotification = timePicker.getMinute();
+                        RAPP.titleNotification = titleET.getText().toString();
+
                         Calendar calendar = Calendar.getInstance();
                         calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
                         calendar.set(Calendar.MINUTE, timePicker.getMinute());
@@ -215,18 +221,6 @@ public class MainActivity extends AppCompatActivity {
                         createReminder(time, titleET.getText().toString(), RAPP.repeatStatus);
                     }
                 }
-
-                // AlarmManager
-                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                Intent intent = new Intent(MainActivity.this, Receiver.class);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, NOTIFICATION_REMINDER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                calendar.set(Calendar.HOUR_OF_DAY, 3);
-                calendar.set(Calendar.MINUTE, 5);
-                calendar.set(Calendar.SECOND, 0);
-
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
             }
         });
     }
@@ -239,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
             reminderList.add(0, reminder);
             adapter.notifyDataSetChanged();
             emptyReminder();
+            createAlarm(RAPP.hourNotification, RAPP.minuteNotification, title);
         }
     }
 
@@ -271,43 +266,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Notifications
-    public void notificationShow(String time, String title) {
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTimeInMillis(System.currentTimeMillis());
-//        String h = String.valueOf(calendar.get(Calendar.HOUR));
-//        String m = String.valueOf(calendar.get(Calendar.MINUTE));
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm");
+    // Alarm Manager
+    private void createAlarm(int hour, int minute, String title) {
+        // AlarmManager
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(MainActivity.this, Receiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, NOTIFICATION_REMINDER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
 
-        if (dateFormat.format(calendar.getTime()).equals(time)) {
-            Toast.makeText(this, dateFormat.format(calendar.getTime()), Toast.LENGTH_LONG).show();
-        }
-
-        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this, NOTIFICATION_ID)
-                        .setSmallIcon(R.drawable.ic_alert)
-                        .setContentTitle(getString(R.string.app_name))
-                        .setContentText(time + " " + title)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                        .setAutoCancel(true)
-                        .setSound(defaultSoundUri);
-//                            .setContentIntent(this);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = ("Title");
-            String description = ("Text");
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(NOTIFICATION_ID, name, importance);
-            channel.setDescription(description);
-
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-
-            // 0 - ID of notification
-            notificationManager.notify(0, notificationBuilder.build());
-        }
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
     }
 }

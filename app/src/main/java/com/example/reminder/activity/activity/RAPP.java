@@ -5,5 +5,7 @@ import android.app.Application;
 public class RAPP extends Application {
 
     public static int repeatStatus = 0;
+    public static int hourNotification = 0, minuteNotification = 0;
+    public static String titleNotification = "";
 
 }
