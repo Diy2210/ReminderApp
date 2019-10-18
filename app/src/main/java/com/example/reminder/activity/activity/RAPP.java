@@ -8,4 +8,7 @@ public class RAPP extends Application {
     public static int hourNotification = 0, minuteNotification = 0;
     public static String titleNotification = "";
 
+    public static int vibrationSetting = 1;
+    public static int soundSetting = 1;
+
 }

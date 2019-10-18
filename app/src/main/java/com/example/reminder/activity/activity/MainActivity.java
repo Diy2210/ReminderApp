@@ -200,6 +200,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (shouldUpdate && reminder != null) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        RAPP.hourNotification = timePicker.getHour();
+                        RAPP.minuteNotification = timePicker.getMinute();
+                        RAPP.titleNotification = titleET.getText().toString();
+
                         Calendar calendar = Calendar.getInstance();
                         calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
                         calendar.set(Calendar.MINUTE, timePicker.getMinute());
@@ -208,8 +212,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-                        //
                         RAPP.hourNotification = timePicker.getHour();
                         RAPP.minuteNotification = timePicker.getMinute();
                         RAPP.titleNotification = titleET.getText().toString();
@@ -233,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
             reminderList.add(0, reminder);
             adapter.notifyDataSetChanged();
             emptyReminder();
-            createAlarm(RAPP.hourNotification, RAPP.minuteNotification, title);
+            createAlarm(RAPP.hourNotification, RAPP.minuteNotification);
         }
     }
 
@@ -247,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
         reminderList.set(position, reminder);
         adapter.notifyItemChanged(position);
         emptyReminder();
+        createAlarm(RAPP.hourNotification, RAPP.minuteNotification);
     }
 
     // Delete Reminder
@@ -267,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Alarm Manager
-    private void createAlarm(int hour, int minute, String title) {
+    private void createAlarm(int hour, int minute) {
         // AlarmManager
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, Receiver.class);
@@ -276,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
 
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
     }

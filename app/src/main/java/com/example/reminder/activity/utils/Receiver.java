@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Vibrator;
 
 import androidx.core.app.NotificationCompat;
 
@@ -24,21 +25,24 @@ public class Receiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(context, NOTIFICATION_ID)
                         .setSmallIcon(R.drawable.ic_alert)
                         .setContentTitle("Reminder")
                         .setContentText(RAPP.titleNotification)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri);
-//                         .setContentIntent(intent);
+        if (RAPP.vibrationSetting == 1) {
+            v.vibrate(500);
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = ("Title");
-            String description = ("Text");
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            CharSequence name = ("Reminder");
+            String description = (RAPP.titleNotification);
+            int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(NOTIFICATION_ID, name, importance);
             channel.setDescription(description);
 
