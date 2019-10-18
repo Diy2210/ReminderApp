@@ -119,4 +119,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(reminder.getId())});
         db.close();
     }
+
+    public void deleteAllReminder() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("delete from "+ Reminder.TABLE_NAME);
+        db.close();
+    }
 }

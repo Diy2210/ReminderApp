@@ -121,6 +121,25 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             return true;
         }
+        if (id == R.id.action_delete_all) {
+            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+            builder.setCancelable(false);
+            builder.setMessage(R.string.message_delete_all_reminder);
+            builder.setPositiveButton(R.string.ok_btn,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            db.deleteAllReminder();
+                            recreate();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel_btn,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    dialog.dismiss();
+                                }
+                            }
+                    ).show();
+        }
 
         return super.onOptionsItemSelected(item);
     }

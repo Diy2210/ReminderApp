@@ -1,7 +1,14 @@
 <resources>
     <string name="app_name">Reminder</string>
     <string name="action_settings">Settings</string>
+    <string name="action_delete_all_reminder">Delete all reminder</string>
     <string name="action_add_reminder">New Reminder</string>
+
+    <string name="ok_btn">Ok</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="delete_btn">Delete</string>
+
+    <string name="message_delete_all_reminder">Delete all reminder?</string>
 
     <string name="activity_title_home">Reminder</string>
     <string name="msg_no_reminder">No Reminder Found!</string>
