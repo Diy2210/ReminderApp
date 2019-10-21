@@ -18,4 +18,9 @@
     <string name="repeat_notification">Repeat notification?</string>
     <string name="title">Title</string>
     <string name="save_button">Save</string>
+
+    <string name="setting_sound">Sound</string>
+    <string name="setting_enable_sound">Enable Sound</string>
+    <string name="setting_vibration">Vibration</string>
+    <string name="setting_enable_vibration">Enable Vibration</string>
 </resources>

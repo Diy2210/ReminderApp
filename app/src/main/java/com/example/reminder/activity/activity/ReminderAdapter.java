@@ -64,7 +64,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         if (RAPP.repeatStatus == 1) {
             holder.repeatImg.setVisibility(View.VISIBLE);
         } else {
-            holder.repeatImg.setVisibility(View.GONE);
+            holder.repeatImg.setVisibility(View.INVISIBLE);
         }
     }
 
