@@ -15,6 +15,10 @@ import androidx.core.app.NotificationCompat;
 import com.example.reminder.R;
 import com.example.reminder.activity.activity.RAPP;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Receiver extends BroadcastReceiver {
 
     public static String NOTIFICATION_ID = "notification_id";
@@ -27,11 +31,15 @@ public class Receiver extends BroadcastReceiver {
 
         Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        DateFormat simple = new SimpleDateFormat("HH:mm");
+        Date result = new Date(RAPP.millisNotification);
+        String time = simple.format(result);
+
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(context, NOTIFICATION_ID)
                         .setSmallIcon(R.drawable.ic_alert)
-                        .setContentTitle("Reminder")
-                        .setContentText(RAPP.titleNotification)
+                        .setContentTitle(RAPP.titleNotification)
+                        .setContentText(time)
                         .setPriority(NotificationCompat.PRIORITY_MAX)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri);

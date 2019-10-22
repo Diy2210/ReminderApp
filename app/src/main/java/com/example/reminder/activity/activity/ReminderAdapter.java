@@ -61,7 +61,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
 
         holder.timeTV.setText(time);
         holder.title.setText(reminder.getTitle());
-        if (RAPP.repeatStatus == 1) {
+        if (reminder.getRepeat() == 1) {
             holder.repeatImg.setVisibility(View.VISIBLE);
         } else {
             holder.repeatImg.setVisibility(View.INVISIBLE);

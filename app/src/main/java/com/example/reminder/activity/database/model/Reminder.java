@@ -17,7 +17,6 @@ public class Reminder {
             "CREATE TABLE " + TABLE_NAME + "("
                     + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + COLUMN_REMINDER_TIME + " INTEGER,"
-
                     + COLUMN_REMINDER_TITLE + " TEXT,"
                     + COLUMN_REMINDER_REPEAT + " TEXT"
                     + ")";

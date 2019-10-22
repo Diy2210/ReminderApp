@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ConstraintLayout cl;
     private DatabaseHelper db;
+    private long time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,27 +186,28 @@ public class MainActivity extends AppCompatActivity {
 
         final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
         alertDialog.show();
+        switchBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    RAPP.repeatStatus = 1;
+                } else {
+                    RAPP.repeatStatus = 0;
+                }
+            }
+        });
 
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switchBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
-                        if (isChecked) {
-                            RAPP.repeatStatus = 1;
-                        } else {
-                            RAPP.repeatStatus = 0;
-                        }
-                    }
-                });
-
+                // Check Empty Title
                 if (TextUtils.isEmpty(titleET.getText().toString())) {
                     Toast.makeText(MainActivity.this, "Enter title!", Toast.LENGTH_SHORT).show();
                     return;
                 } else {
                     alertDialog.dismiss();
                 }
+                // Update Reminder Method
                 if (shouldUpdate && reminder != null) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         RAPP.hourNotification = timePicker.getHour();
@@ -216,9 +218,11 @@ public class MainActivity extends AppCompatActivity {
                         calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
                         calendar.set(Calendar.MINUTE, timePicker.getMinute());
                         long time = calendar.getTimeInMillis();
+                        RAPP.millisNotification = time;
                         updateReminder(time, titleET.getText().toString(), RAPP.repeatStatus, position);
                     }
                 } else {
+                    // Create Reminder Method
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         RAPP.hourNotification = timePicker.getHour();
                         RAPP.minuteNotification = timePicker.getMinute();
@@ -227,7 +231,8 @@ public class MainActivity extends AppCompatActivity {
                         Calendar calendar = Calendar.getInstance();
                         calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
                         calendar.set(Calendar.MINUTE, timePicker.getMinute());
-                        long time = calendar.getTimeInMillis();
+                        time = calendar.getTimeInMillis();
+                        RAPP.millisNotification = time;
                         createReminder(time, titleET.getText().toString(), RAPP.repeatStatus);
                     }
                 }
@@ -279,7 +284,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Alarm Manager
     private void createAlarm(int hour, int minute) {
-        // AlarmManager
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, Receiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, NOTIFICATION_REMINDER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -289,6 +293,11 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        if (RAPP.repeatStatus == 1) {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
+        }
+        RAPP.repeatStatus = 0;
     }
 }
