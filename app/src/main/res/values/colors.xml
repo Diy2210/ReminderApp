@@ -3,6 +3,7 @@
     <color name="colorPrimary">#1C71D1</color>
     <color name="colorPrimaryDark">#155CB3</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="colorGreen">#22B914</color>
 
     <color name="msg_no_reminder">#999</color>
     <color name="hint_enter_reminder">#89c3c3c3</color>
