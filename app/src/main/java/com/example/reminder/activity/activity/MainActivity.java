@@ -170,6 +170,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (shouldUpdate && reminder != null) {
             titleET.setText(reminder.getTitle());
+            if (reminder.getRepeat() == 1) {
+                switchBtn.setChecked(true);
+            }
         }
         alertDialogBuilderUserInput
                 .setCancelable(true)
@@ -186,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
         final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
         alertDialog.show();
+
         switchBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
