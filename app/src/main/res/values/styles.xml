@@ -32,6 +32,6 @@
 
     <!-- Theme Switch Button -->
     <style name="SwitchButtonTheme" parent="Theme.AppCompat.Light">
-        <item name="colorAccent">@color/colorGreen</item>
+        <item name="colorAccent">@color/colorPrimary</item>
     </style>
 </resources>
