@@ -7,17 +7,15 @@
     <string name="ok_btn">Ok</string>
     <string name="cancel_btn">Cancel</string>
     <string name="delete_btn">Delete</string>
+    <string name="save_btn">Save</string>
 
     <string name="message_delete_all_reminder">Delete all reminder?</string>
 
-    <string name="activity_title_home">Reminder</string>
     <string name="msg_no_reminder">No Reminder Found!</string>
     <string name="lbl_new_reminder_title">New Reminder</string>
     <string name="lbl_edit_reminder_title">Edit Reminder</string>
-    <string name="hint_enter_reminder">Enter your reminder!</string>
     <string name="repeat_notification">Repeat notification?</string>
     <string name="title">Title</string>
-    <string name="save_button">Save</string>
 
     <string name="setting_sound">Sound</string>
     <string name="setting_enable_sound">Enable Sound</string>
