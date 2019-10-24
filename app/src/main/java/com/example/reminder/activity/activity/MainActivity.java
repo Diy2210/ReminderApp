@@ -42,8 +42,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final int NOTIFICATION_REMINDER = 100;
-
     private ReminderAdapter adapter;
     private List<Reminder> reminderList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -290,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
     private void createAlarm(int hour, int minute) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, Receiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, NOTIFICATION_REMINDER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, RAPP.NOTIFICATION_REMINDER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
