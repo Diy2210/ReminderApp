@@ -13,11 +13,12 @@ import com.example.reminder.activity.database.model.Reminder;
 import com.example.reminder.activity.utils.ItemDecoration;
 import com.example.reminder.activity.utils.Receiver;
 import com.example.reminder.activity.utils.RecyclerListener;
+import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,6 +44,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private CoordinatorLayout coordinatorLayout;
     private ReminderAdapter adapter;
     private List<Reminder> reminderList = new ArrayList<>();
     private RecyclerView recyclerView;
@@ -53,10 +56,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        coordinatorLayout = findViewById(R.id.coordinator_layout);
 
-        CoordinatorLayout coordinatorLayout = findViewById(R.id.coordinator_layout);
+        BottomAppBar bottomAppBar = findViewById(R.id.bottom_app_bar);
+        setSupportActionBar(bottomAppBar);
+
         recyclerView = findViewById(R.id.recycler_view);
         cl = findViewById(R.id.CL);
 
@@ -99,35 +103,56 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.menu_main, menu);
+//        MenuItem delItem = menu.findItem(R.id.action_delete_all);
+//
+//        // show the button when some condition is true
+//        if (db.getReminderCount() > 0) {
+//            delItem.setVisible(true);
+//        } else {
+//            delItem.setVisible(false);
+//        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        if (id == R.id.action_delete_all) {
+//            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+//            builder.setCancelable(false);
+//            builder.setMessage(R.string.message_delete_all_reminder);
+//            builder.setPositiveButton(R.string.ok_btn,
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int whichButton) {
+//                            db.deleteAllReminder();
+//                            recreate();
+//                        }
+//                    })
+//                    .setNegativeButton(R.string.cancel_btn,
+//                            new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int whichButton) {
+//                                    dialog.dismiss();
+//                                }
+//                            }
+//                    ).show();
+
+            Snackbar.make(coordinatorLayout, R.string.message_delete_all_reminder, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.delete_btn, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            db.deleteAllReminder();
+                            recreate();
+                            Toast.makeText(MainActivity.this, R.string.complete, Toast.LENGTH_SHORT).show();
+                        }
+                    }).show();
+        }
+
         if (id == R.id.action_settings) {
             Intent i = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(i);
             return true;
-        }
-        if (id == R.id.action_delete_all) {
-            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-            builder.setCancelable(false);
-            builder.setMessage(R.string.message_delete_all_reminder);
-            builder.setPositiveButton(R.string.ok_btn,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            db.deleteAllReminder();
-                            recreate();
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel_btn,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    dialog.dismiss();
-                                }
-                            }
-                    ).show();
         }
         return super.onOptionsItemSelected(item);
     }
