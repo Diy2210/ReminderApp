@@ -62,8 +62,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TITLE)),
                 cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_REPEAT)));
 
-        cursor.close();
-
         return reminder;
     }
 
@@ -122,7 +120,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteAllReminder() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("delete from "+ Reminder.TABLE_NAME);
+        db.execSQL("delete from " + Reminder.TABLE_NAME);
         db.close();
     }
 }

@@ -43,6 +43,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private ReminderAdapter adapter;
+    private Reminder reminder;
     private List<Reminder> reminderList = new ArrayList<>();
     private RecyclerView recyclerView;
     private ConstraintLayout cl;
@@ -245,33 +246,49 @@ public class MainActivity extends AppCompatActivity {
     // Create Reminder
     private void createReminder(long time, String title, int repeat) {
         long id = db.insertReminder(time, title, repeat);
-        Reminder reminder = db.getReminder(id);
+        reminder = db.getReminder(id);
         if (reminder != null) {
             reminderList.add(0, reminder);
             adapter.notifyDataSetChanged();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                RAPP.reminder_id = Math.toIntExact(id);
+            }
+            createAlarm(RAPP.hourNotification, RAPP.minuteNotification, RAPP.reminder_id);
             emptyReminder();
-            createAlarm(RAPP.hourNotification, RAPP.minuteNotification);
         }
     }
 
     // Update Reminder
     private void updateReminder(long time, String title, int repeat, int position) {
-        Reminder reminder = reminderList.get(position);
+        long id = db.insertReminder(time, title, repeat);
+        db.getReminder(id);
+
+        reminder = reminderList.get(position);
         reminder.setTime(time);
         reminder.setTitle(title);
         reminder.setRepeat(repeat);
+
         db.updateReminder(reminder);
         reminderList.set(position, reminder);
         adapter.notifyItemChanged(position);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            RAPP.reminder_id = Math.toIntExact(id);
+        }
+        updateAlarm(RAPP.hourNotification, RAPP.minuteNotification, RAPP.reminder_id);
         emptyReminder();
-        createAlarm(RAPP.hourNotification, RAPP.minuteNotification);
     }
 
     // Delete Reminder
     private void deleteReminder(int position) {
+        reminder = reminderList.get(position);
+        int id = reminder.getId();
+
         db.deleteReminder(reminderList.get(position));
         reminderList.remove(position);
         adapter.notifyItemRemoved(position);
+
+        deleteAlarm(id);
         emptyReminder();
     }
 
@@ -284,11 +301,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Alarm Manager
-    private void createAlarm(int hour, int minute) {
+    // Create Alarm Manager
+    private void createAlarm(int hour, int minute, int id) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, Receiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, RAPP.NOTIFICATION_REMINDER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
@@ -301,5 +318,32 @@ public class MainActivity extends AppCompatActivity {
             alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
         }
         RAPP.repeatStatus = 0;
+    }
+
+    // Update Alarm Manager
+    private void updateAlarm(int hour, int minute, int id) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(MainActivity.this, Receiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        if (RAPP.repeatStatus == 1) {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
+        }
+        RAPP.repeatStatus = 0;
+    }
+
+    // Delete Alarm Manager
+    private void deleteAlarm(int id) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(MainActivity.this, Receiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
     }
 }

@@ -11,10 +11,10 @@
 
     <string name="message_delete_all_reminder">Delete all reminder?</string>
 
-    <string name="msg_no_reminder">No Reminder Found!</string>
+    <string name="msg_no_reminder">no reminder found</string>
     <string name="lbl_new_reminder_title">New Reminder</string>
     <string name="lbl_edit_reminder_title">Edit Reminder</string>
-    <string name="repeat_notification">Repeat notification?</string>
+    <string name="repeat_notification">Repeat notification</string>
     <string name="title">Title</string>
 
     <string name="setting_sound">Sound</string>
