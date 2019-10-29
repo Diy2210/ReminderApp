@@ -7,29 +7,32 @@ public class Reminder {
     public static final String COLUMN_REMINDER_TIME = "time";
     public static final String COLUMN_REMINDER_TITLE = "title";
     public static final String COLUMN_REMINDER_REPEAT = "repeat";
+    public static final String COLUMN_REMINDER_REPEAT_TYPE = "repeatType";
 
     private int id;
     private long time;
     private String title;
     private int repeat;
+    private long repeatType;
 
     public static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + "("
                     + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + COLUMN_REMINDER_TIME + " INTEGER,"
                     + COLUMN_REMINDER_TITLE + " TEXT,"
-                    + COLUMN_REMINDER_REPEAT + " TEXT"
+                    + COLUMN_REMINDER_REPEAT + " TEXT,"
+                    + COLUMN_REMINDER_REPEAT_TYPE + " INTEGER"
                     + ")";
 
     public Reminder() {
     }
 
-    public Reminder(int id, long time, String title, int repeat) {
+    public Reminder(int id, long time, String title, int repeat, long repeatType) {
         this.id = id;
         this.time = time;
-
         this.title = title;
         this.repeat = repeat;
+        this.repeatType = repeatType;
     }
 
     public int getId() {
@@ -70,5 +73,13 @@ public class Reminder {
 
     public void setReminder(String title) {
         this.title = title;
+    }
+
+    public long getRepeatType() {
+        return repeatType;
+    }
+
+    public void setRepeatType(long repeatType) {
+        this.repeatType = repeatType;
     }
 }

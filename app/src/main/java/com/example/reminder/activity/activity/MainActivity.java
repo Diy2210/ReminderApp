@@ -35,7 +35,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -123,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             db.deleteAllReminder();
+                            deleteAllReminders();
                             recreate();
                         }
                     })
@@ -219,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View itemSelected,
                                        int selectedItemPosition, long selectedId) {
                 String[] size_values = getResources().getStringArray(R.array.repeat_interval_milliseconds);
-                RAPP.intervalRepeatMilliseconds = Integer.parseInt(size_values[selectedItemPosition]);
+                RAPP.intervalRepeatMilliseconds = Long.parseLong(size_values[selectedItemPosition]);
             }
 
             public void onNothingSelected(AdapterView<?> parent) {
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                         calendar.set(Calendar.MINUTE, timePicker.getMinute());
                         long time = calendar.getTimeInMillis();
                         RAPP.millisNotification = time;
-                        updateReminder(time, titleET.getText().toString(), RAPP.repeatStatus, position);
+                        updateReminder(time, titleET.getText().toString(), RAPP.repeatStatus, RAPP.intervalRepeatMilliseconds, position);
                     }
                 } else {
                     // Create Reminder Method
@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
                         calendar.set(Calendar.MINUTE, timePicker.getMinute());
                         time = calendar.getTimeInMillis();
                         RAPP.millisNotification = time;
-                        createReminder(time, titleET.getText().toString(), RAPP.repeatStatus);
+                        createReminder(time, titleET.getText().toString(), RAPP.repeatStatus, RAPP.intervalRepeatMilliseconds);
                     }
                 }
             }
@@ -270,8 +270,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Create Reminder
-    private void createReminder(long time, String title, int repeat) {
-        long id = db.insertReminder(time, title, repeat);
+    private void createReminder(long time, String title, int repeat, long repeatType) {
+        long id = db.insertReminder(time, title, repeat, repeatType);
         reminder = db.getReminder(id);
         if (reminder != null) {
             reminderList.add(0, reminder);
@@ -285,14 +285,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Update Reminder
-    private void updateReminder(long time, String title, int repeat, int position) {
-        long id = db.insertReminder(time, title, repeat);
+    private void updateReminder(long time, String title, int repeat, long repeatType, int position) {
+        long id = db.insertReminder(time, title, repeat, repeatType);
         db.getReminder(id);
 
         reminder = reminderList.get(position);
         reminder.setTime(time);
         reminder.setTitle(title);
         reminder.setRepeat(repeat);
+        reminder.setRepeatType(repeatType);
 
         db.updateReminder(reminder);
         reminderList.set(position, reminder);
@@ -316,6 +317,12 @@ public class MainActivity extends AppCompatActivity {
 
         deleteAlarm(id);
         emptyReminder();
+    }
+
+    // Delete All Reminder
+    private void deleteAllReminders() {
+        db.getAllReminder();
+        deleteAllAlarms();
     }
 
     // Show Empty Reminder List
@@ -371,5 +378,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, Receiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
+    }
+
+    private void deleteAllAlarms() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        Intent intent = new Intent(MainActivity.this, Receiver.class);
+        PendingIntent pendingUpdateIntent = PendingIntent.getService(MainActivity.this, 0, intent, 0);
+        alarmManager.cancel(pendingUpdateIntent);
     }
 }

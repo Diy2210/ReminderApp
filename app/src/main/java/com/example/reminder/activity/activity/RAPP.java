@@ -14,6 +14,6 @@ public class RAPP extends Application {
     public static int soundSetting = 1;
     public static int hourNotification = 0, minuteNotification = 0;
     public static int repeatStatus = 0;
-    public static int intervalRepeatMilliseconds = 0;
+    public static long intervalRepeatMilliseconds = 0;
     public static long millisNotification = 0;
 }

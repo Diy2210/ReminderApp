@@ -16,29 +16,30 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.MyViewHolder>{
+public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.MyViewHolder> {
 
-private Context context;
-private List<Reminder> reminderList;
+    private Context context;
+    private List<Reminder> reminderList;
 
-public class MyViewHolder extends RecyclerView.ViewHolder {
+    public class MyViewHolder extends RecyclerView.ViewHolder {
 
-    public TextView timeTV;
-    public TextView title;
-    public TextView intervalTV;
-    public ImageView img;
-    public ImageView repeatImg;
+        public TextView timeTV;
+        public TextView title;
+        public TextView intervalTV;
+        public ImageView img;
+        public ImageView repeatImg;
 
-    public MyViewHolder(View view) {
-        super(view);
-        img = view.findViewById(R.id.imageView);
-        timeTV = view.findViewById(R.id.timeTV);
-        title = view.findViewById(R.id.titleET);
-        intervalTV = view.findViewById(R.id.intevalTV);
-        repeatImg = view.findViewById(R.id.repeatImg);
+        public MyViewHolder(View view) {
+            super(view);
+            img = view.findViewById(R.id.imageView);
+            timeTV = view.findViewById(R.id.timeTV);
+            title = view.findViewById(R.id.titleET);
+            intervalTV = view.findViewById(R.id.intevalTV);
+            repeatImg = view.findViewById(R.id.repeatImg);
+        }
     }
-}
 
     public ReminderAdapter(Context context, List<Reminder> reminderList) {
         this.context = context;
@@ -65,9 +66,17 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         holder.title.setText(reminder.getTitle());
 
         DateFormat timeRepeat = new SimpleDateFormat("mm:ss");
-        Date resultRepeat = new Date(RAPP.intervalRepeatMilliseconds);
+        Date resultRepeat = new Date(reminder.getRepeatType());
         String timeRep = timeRepeat.format(resultRepeat);
-        holder.intervalTV.setText("Repeat after " + timeRep + " minutes");
+        if (reminder.getRepeatType() == 3600000) {
+            holder.intervalTV.setText(R.string.repeat_after_hour);
+        } else if (reminder.getRepeatType() == 60000) {
+            holder.intervalTV.setText(String.format(Locale.getDefault(), "%s %s %s", context.getString(R.string.repeat_after), timeRep, context.getString(R.string.minute)));
+        } else if (reminder.getRepeatType() == 86400000) {
+            holder.intervalTV.setText(R.string.repeat_once_day);
+        } else {
+            holder.intervalTV.setText(String.format(Locale.getDefault(), "%s %s %s", context.getString(R.string.repeat_after), timeRep, context.getString(R.string.minutes)));
+        }
 
         if (reminder.getRepeat() == 1) {
             holder.repeatImg.setVisibility(View.VISIBLE);

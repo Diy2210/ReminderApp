@@ -31,13 +31,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertReminder(long time, String title, int repeat) {
+    public long insertReminder(long time, String title, int repeat, long repeatType) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(Reminder.COLUMN_REMINDER_TIME, time);
         values.put(Reminder.COLUMN_REMINDER_TITLE, title);
         values.put(Reminder.COLUMN_REMINDER_REPEAT, repeat);
+        values.put(Reminder.COLUMN_REMINDER_REPEAT_TYPE, repeatType);
         long id = db.insert(Reminder.TABLE_NAME, null, values);
         db.close();
         return id;
@@ -48,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(Reminder.TABLE_NAME,
-                new String[]{Reminder.COLUMN_ID, Reminder.COLUMN_REMINDER_TIME, Reminder.COLUMN_REMINDER_TITLE, Reminder.COLUMN_REMINDER_REPEAT},
+                new String[]{Reminder.COLUMN_ID, Reminder.COLUMN_REMINDER_TIME, Reminder.COLUMN_REMINDER_TITLE, Reminder.COLUMN_REMINDER_REPEAT, Reminder.COLUMN_REMINDER_REPEAT_TYPE},
                 Reminder.COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
@@ -60,7 +61,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_ID)),
                 cursor.getLong(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TIME)),
                 cursor.getString(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TITLE)),
-                cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_REPEAT)));
+                cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_REPEAT)),
+                cursor.getLong(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_REPEAT_TYPE)));
 
         return reminder;
     }
@@ -83,6 +85,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 reminder.setTime(cursor.getLong(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TIME)));
                 reminder.setTitle(cursor.getString(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_TITLE)));
                 reminder.setRepeat(cursor.getInt(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_REPEAT)));
+                reminder.setRepeatType(cursor.getLong(cursor.getColumnIndex(Reminder.COLUMN_REMINDER_REPEAT_TYPE)));
                 reminders.add(reminder);
             } while (cursor.moveToNext());
         }
@@ -106,6 +109,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(Reminder.COLUMN_REMINDER_TIME, reminder.getTime());
         values.put(Reminder.COLUMN_REMINDER_REPEAT, reminder.getRepeat());
+        values.put(Reminder.COLUMN_REMINDER_REPEAT_TYPE, reminder.getRepeatType());
 
         return db.update(Reminder.TABLE_NAME, values, Reminder.COLUMN_ID + " = ?",
                 new String[]{String.valueOf(reminder.getId())});

@@ -22,6 +22,12 @@
     <string name="setting_vibration">Vibration</string>
     <string name="setting_enable_vibration">Enable Vibration</string>
 
+    <string name="repeat_after_hour">Repeat after 1 hour</string>
+    <string name="repeat_after">Repeat after </string>
+    <string name="minute"> minute</string>
+    <string name="minutes"> minutes</string>
+    <string name="repeat_once_day">Once a day</string>
+
     <string-array name="repeat_interval">
         <item>1 min</item>
         <item>5 min</item>
