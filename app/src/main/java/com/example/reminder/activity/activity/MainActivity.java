@@ -29,8 +29,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -49,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private ConstraintLayout cl;
     private DatabaseHelper db;
     private long time;
+    private ArrayAdapter<?> arrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,17 +166,22 @@ public class MainActivity extends AppCompatActivity {
 
         final TimePicker timePicker = view.findViewById(R.id.timePicker);
         timePicker.setIs24HourView(true);
-        final Switch switchBtn = view.findViewById(R.id.switchBtn);
         final EditText titleET = view.findViewById(R.id.titleET);
-        TextView dialogTitle = view.findViewById(R.id.dialogTitleTV);
-        dialogTitle.setText(!shouldUpdate ? getString(R.string.lbl_new_reminder_title) : getString(R.string.lbl_edit_reminder_title));
+//        TextView dialogTitle = view.findViewById(R.id.dialogTitleTV);
+//        dialogTitle.setText(!shouldUpdate ? getString(R.string.lbl_new_reminder_title) : getString(R.string.lbl_edit_reminder_title));
+        final Switch switchBtn = view.findViewById(R.id.switchBtn);
+        final Spinner spinner = view.findViewById(R.id.spinner);
 
         if (shouldUpdate && reminder != null) {
             titleET.setText(reminder.getTitle());
             if (reminder.getRepeat() == 1) {
                 switchBtn.setChecked(true);
+                spinner.setVisibility(View.VISIBLE);
+            } else {
+                spinner.setVisibility(View.GONE);
             }
         }
+
         alertDialogBuilderUserInput
                 .setCancelable(true)
                 .setPositiveButton(shouldUpdate ? "update" : "save", new DialogInterface.OnClickListener() {
@@ -194,9 +203,26 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     RAPP.repeatStatus = 1;
+                    spinner.setVisibility(View.VISIBLE);
                 } else {
                     RAPP.repeatStatus = 0;
+                    spinner.setVisibility(View.GONE);
                 }
+            }
+        });
+
+        // Spinner Interval Repeat
+        arrayAdapter = ArrayAdapter.createFromResource(MainActivity.this, R.array.repeat_interval, android.R.layout.simple_spinner_item);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(arrayAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent, View itemSelected,
+                                       int selectedItemPosition, long selectedId) {
+                String[] size_values = getResources().getStringArray(R.array.repeat_interval_milliseconds);
+                RAPP.intervalRepeatMilliseconds = Integer.parseInt(size_values[selectedItemPosition]);
+            }
+
+            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
 
@@ -313,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.MILLISECOND, 0);
 
         if (RAPP.repeatStatus == 1) {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), RAPP.intervalRepeatMilliseconds, pendingIntent);
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
         }
@@ -332,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.MILLISECOND, 0);
 
         if (RAPP.repeatStatus == 1) {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), RAPP.intervalRepeatMilliseconds, pendingIntent);
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
         }

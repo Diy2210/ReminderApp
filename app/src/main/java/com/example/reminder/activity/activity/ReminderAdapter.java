@@ -25,8 +25,9 @@ private List<Reminder> reminderList;
 public class MyViewHolder extends RecyclerView.ViewHolder {
 
     public TextView timeTV;
-    public ImageView img;
     public TextView title;
+    public TextView intervalTV;
+    public ImageView img;
     public ImageView repeatImg;
 
     public MyViewHolder(View view) {
@@ -34,6 +35,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         img = view.findViewById(R.id.imageView);
         timeTV = view.findViewById(R.id.timeTV);
         title = view.findViewById(R.id.titleET);
+        intervalTV = view.findViewById(R.id.intevalTV);
         repeatImg = view.findViewById(R.id.repeatImg);
     }
 }
@@ -55,15 +57,23 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     public void onBindViewHolder(MyViewHolder holder, int position) {
         Reminder reminder = reminderList.get(position);
 
-        DateFormat simple = new SimpleDateFormat("HH:mm");
-        Date result = new Date(reminder.getTime());
-        String time = simple.format(result);
-
+        DateFormat timeReminder = new SimpleDateFormat("HH:mm");
+        Date resultTime = new Date(reminder.getTime());
+        String time = timeReminder.format(resultTime);
         holder.timeTV.setText(time);
+
         holder.title.setText(reminder.getTitle());
+
+        DateFormat timeRepeat = new SimpleDateFormat("mm:ss");
+        Date resultRepeat = new Date(RAPP.intervalRepeatMilliseconds);
+        String timeRep = timeRepeat.format(resultRepeat);
+        holder.intervalTV.setText("Repeat after " + timeRep + " minutes");
+
         if (reminder.getRepeat() == 1) {
             holder.repeatImg.setVisibility(View.VISIBLE);
+            holder.intervalTV.setVisibility(View.VISIBLE);
         } else {
+            holder.intervalTV.setVisibility(View.INVISIBLE);
             holder.repeatImg.setVisibility(View.INVISIBLE);
         }
     }
