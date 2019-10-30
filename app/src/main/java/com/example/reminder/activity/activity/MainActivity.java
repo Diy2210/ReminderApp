@@ -2,8 +2,10 @@ package com.example.reminder.activity.activity;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -24,6 +26,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +40,8 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -114,26 +119,26 @@ public class MainActivity extends AppCompatActivity {
             startActivity(i);
             return true;
         }
-        if (id == R.id.action_delete_all) {
-            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-            builder.setCancelable(false);
-            builder.setMessage(R.string.message_delete_all_reminder);
-            builder.setPositiveButton(R.string.ok_btn,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            db.deleteAllReminder();
-                            deleteAllReminders();
-                            recreate();
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel_btn,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    dialog.dismiss();
-                                }
-                            }
-                    ).show();
-        }
+//        if (id == R.id.action_delete_all) {
+//            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+//            builder.setCancelable(false);
+//            builder.setMessage(R.string.message_delete_all_reminder);
+//            builder.setPositiveButton(R.string.ok_btn,
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int whichButton) {
+//                            db.deleteAllReminder();
+//                            deleteAllReminders();
+//                            recreate();
+//                        }
+//                    })
+//                    .setNegativeButton(R.string.cancel_btn,
+//                            new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int whichButton) {
+//                                    dialog.dismiss();
+//                                }
+//                            }
+//                    ).show();
+//        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -167,8 +172,6 @@ public class MainActivity extends AppCompatActivity {
         final TimePicker timePicker = view.findViewById(R.id.timePicker);
         timePicker.setIs24HourView(true);
         final EditText titleET = view.findViewById(R.id.titleET);
-//        TextView dialogTitle = view.findViewById(R.id.dialogTitleTV);
-//        dialogTitle.setText(!shouldUpdate ? getString(R.string.lbl_new_reminder_title) : getString(R.string.lbl_edit_reminder_title));
         final Switch switchBtn = view.findViewById(R.id.switchBtn);
         final Spinner spinner = view.findViewById(R.id.spinner);
 
@@ -315,14 +318,15 @@ public class MainActivity extends AppCompatActivity {
         reminderList.remove(position);
         adapter.notifyItemRemoved(position);
 
-        deleteAlarm(id);
+        deleteAlarms(id);
         emptyReminder();
     }
 
     // Delete All Reminder
     private void deleteAllReminders() {
-        db.getAllReminder();
-        deleteAllAlarms();
+        int id = reminder.getId();
+        reminderList.get(id);
+        deleteAlarms(id);
     }
 
     // Show Empty Reminder List
@@ -334,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Create Alarm Manager
+    // Create Alarm
     private void createAlarm(int hour, int minute, int id) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, Receiver.class);
@@ -353,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
         RAPP.repeatStatus = 0;
     }
 
-    // Update Alarm Manager
+    // Update Alarm
     private void updateAlarm(int hour, int minute, int id) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, Receiver.class);
@@ -372,19 +376,12 @@ public class MainActivity extends AppCompatActivity {
         RAPP.repeatStatus = 0;
     }
 
-    // Delete Alarm Manager
-    private void deleteAlarm(int id) {
+    // Delete Alarm
+    private void deleteAlarms(int id) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, Receiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
-    }
-
-    private void deleteAllAlarms() {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-
-        Intent intent = new Intent(MainActivity.this, Receiver.class);
-        PendingIntent pendingUpdateIntent = PendingIntent.getService(MainActivity.this, 0, intent, 0);
-        alarmManager.cancel(pendingUpdateIntent);
+        pendingIntent.cancel();
     }
 }
