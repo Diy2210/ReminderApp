@@ -2,7 +2,6 @@ package com.example.reminder.activity.activity;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
-
 import com.example.reminder.R;
 
 public class FragmentSettings extends PreferenceFragment {
