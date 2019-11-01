@@ -1,6 +1,7 @@
 package com.example.reminder.activity.activity;
 
 import android.app.Application;
+import android.net.Uri;
 
 public class RAPP extends Application {
 
@@ -10,8 +11,9 @@ public class RAPP extends Application {
 
     public static String titleNotification = "";
     public static int reminder_id = 0;
-    public static int vibrationSetting = 1;
-    public static int soundSetting = 1;
+    public static boolean vibrationSetting = true;
+    public static boolean soundSetting = true;
+    public static Uri uriSetting;
     public static int hourNotification = 0, minuteNotification = 0;
     public static int repeatStatus = 0;
     public static long intervalRepeatMilliseconds = 0;

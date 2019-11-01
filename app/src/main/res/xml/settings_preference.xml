@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <RingtonePreference
+        android:key="setting_notification"
+        android:showDefault="true"
+        android:showSilent="true"
+        android:title="Notification"
+        android:summary="Choose sound notification"
+        android:ringtoneType="notification" />
+    <SwitchPreference
+        android:key="setting_sound"
+        android:defaultValue="true"
+        android:title="Sound"
+        android:summary="Enable sound"/>
+    <SwitchPreference
+        android:key="setting_vibration"
+        android:defaultValue="true"
+        android:title="Vibration"
+        android:summary="Enable vibration"/>
+</PreferenceScreen>
