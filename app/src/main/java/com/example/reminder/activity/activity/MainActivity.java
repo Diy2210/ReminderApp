@@ -297,6 +297,9 @@ public class MainActivity extends AppCompatActivity {
 
         deleteAlarm(id);
         emptyReminder();
+//        recreate();
+//        finish();
+//        startActivity(getIntent());
     }
 
     // Show Empty Reminder List
@@ -352,5 +355,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, Receiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
+        finish();
+        overridePendingTransition( 0, 0);
+        startActivity(getIntent());
+        overridePendingTransition( 0, 0);
     }
 }

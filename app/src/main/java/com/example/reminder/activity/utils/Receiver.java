@@ -66,7 +66,7 @@ public class Receiver extends BroadcastReceiver {
                         .setContentIntent(pendingIntent);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = ("Reminder");
+            CharSequence name = context.getString(R.string.app_name);
             String description = (RAPP.titleNotification);
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(RAPP.NOTIFICATION_ID, name, importance);
