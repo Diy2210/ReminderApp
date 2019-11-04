@@ -13,11 +13,12 @@ import com.example.reminder.activity.database.model.Reminder;
 import com.example.reminder.activity.utils.ItemDecoration;
 import com.example.reminder.activity.utils.Receiver;
 import com.example.reminder.activity.utils.RecyclerListener;
+import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -26,15 +27,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -44,23 +44,23 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private CoordinatorLayout coordinatorLayout;
     private ReminderAdapter adapter;
-    private Reminder reminder;
     private List<Reminder> reminderList = new ArrayList<>();
     private RecyclerView recyclerView;
     private ConstraintLayout cl;
     private DatabaseHelper db;
     private long time;
-    private ArrayAdapter<?> arrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        coordinatorLayout = findViewById(R.id.coordinator_layout);
 
-        CoordinatorLayout coordinatorLayout = findViewById(R.id.coordinator_layout);
+        BottomAppBar bottomAppBar = findViewById(R.id.bottom_app_bar);
+        setSupportActionBar(bottomAppBar);
+
         recyclerView = findViewById(R.id.recycler_view);
         cl = findViewById(R.id.CL);
 
@@ -103,18 +103,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.menu_main, menu);
+//        MenuItem delItem = menu.findItem(R.id.action_delete_all);
+//
+//        // show the button when some condition is true
+//        if (db.getReminderCount() > 0) {
+//            delItem.setVisible(true);
+//        } else {
+//            delItem.setVisible(false);
+//        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(i);
-            return true;
-        }
-//        if (id == R.id.action_delete_all) {
+        if (id == R.id.action_delete_all) {
 //            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
 //            builder.setCancelable(false);
 //            builder.setMessage(R.string.message_delete_all_reminder);
@@ -122,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
 //                    new DialogInterface.OnClickListener() {
 //                        public void onClick(DialogInterface dialog, int whichButton) {
 //                            db.deleteAllReminder();
-//                            deleteAllReminders();
 //                            recreate();
 //                        }
 //                    })
@@ -133,7 +137,23 @@ public class MainActivity extends AppCompatActivity {
 //                                }
 //                            }
 //                    ).show();
-//        }
+
+            Snackbar.make(coordinatorLayout, R.string.message_delete_all_reminder, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.delete_btn, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            db.deleteAllReminder();
+                            recreate();
+                            Toast.makeText(MainActivity.this, R.string.complete, Toast.LENGTH_SHORT).show();
+                        }
+                    }).show();
+        }
+
+        if (id == R.id.action_settings) {
+            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(i);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -166,20 +186,17 @@ public class MainActivity extends AppCompatActivity {
 
         final TimePicker timePicker = view.findViewById(R.id.timePicker);
         timePicker.setIs24HourView(true);
-        final EditText titleET = view.findViewById(R.id.titleET);
         final Switch switchBtn = view.findViewById(R.id.switchBtn);
-        final Spinner spinner = view.findViewById(R.id.spinner);
+        final EditText titleET = view.findViewById(R.id.titleET);
+        TextView dialogTitle = view.findViewById(R.id.dialogTitleTV);
+        dialogTitle.setText(!shouldUpdate ? getString(R.string.lbl_new_reminder_title) : getString(R.string.lbl_edit_reminder_title));
 
         if (shouldUpdate && reminder != null) {
             titleET.setText(reminder.getTitle());
             if (reminder.getRepeat() == 1) {
                 switchBtn.setChecked(true);
-                spinner.setVisibility(View.VISIBLE);
-            } else {
-                spinner.setVisibility(View.GONE);
             }
         }
-
         alertDialogBuilderUserInput
                 .setCancelable(true)
                 .setPositiveButton(shouldUpdate ? "update" : "save", new DialogInterface.OnClickListener() {
@@ -201,26 +218,9 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     RAPP.repeatStatus = 1;
-                    spinner.setVisibility(View.VISIBLE);
                 } else {
                     RAPP.repeatStatus = 0;
-                    spinner.setVisibility(View.GONE);
                 }
-            }
-        });
-
-        // Spinner Interval Repeat
-        arrayAdapter = ArrayAdapter.createFromResource(MainActivity.this, R.array.repeat_interval, android.R.layout.simple_spinner_item);
-        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(arrayAdapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> parent, View itemSelected,
-                                       int selectedItemPosition, long selectedId) {
-                String[] size_values = getResources().getStringArray(R.array.repeat_interval_milliseconds);
-                RAPP.intervalRepeatMilliseconds = Long.parseLong(size_values[selectedItemPosition]);
-            }
-
-            public void onNothingSelected(AdapterView<?> parent) {
             }
         });
 
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
                         calendar.set(Calendar.MINUTE, timePicker.getMinute());
                         long time = calendar.getTimeInMillis();
                         RAPP.millisNotification = time;
-                        updateReminder(time, titleET.getText().toString(), RAPP.repeatStatus, RAPP.intervalRepeatMilliseconds, position);
+                        updateReminder(time, titleET.getText().toString(), RAPP.repeatStatus, position);
                     }
                 } else {
                     // Create Reminder Method
@@ -260,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
                         calendar.set(Calendar.MINUTE, timePicker.getMinute());
                         time = calendar.getTimeInMillis();
                         RAPP.millisNotification = time;
-                        createReminder(time, titleET.getText().toString(), RAPP.repeatStatus, RAPP.intervalRepeatMilliseconds);
+                        createReminder(time, titleET.getText().toString(), RAPP.repeatStatus);
                     }
                 }
             }
@@ -268,60 +268,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Create Reminder
-    private void createReminder(long time, String title, int repeat, long repeatType) {
-        long id = db.insertReminder(time, title, repeat, repeatType);
-        reminder = db.getReminder(id);
+    private void createReminder(long time, String title, int repeat) {
+        long id = db.insertReminder(time, title, repeat);
+        Reminder reminder = db.getReminder(id);
         if (reminder != null) {
             reminderList.add(0, reminder);
             adapter.notifyDataSetChanged();
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                RAPP.reminder_id = Math.toIntExact(id);
-            }
-            createAlarm(RAPP.hourNotification, RAPP.minuteNotification, RAPP.reminder_id);
             emptyReminder();
+            createAlarm(RAPP.hourNotification, RAPP.minuteNotification);
         }
     }
 
     // Update Reminder
-    private void updateReminder(long time, String title, int repeat, long repeatType, int position) {
-        long id = db.insertReminder(time, title, repeat, repeatType);
-        db.getReminder(id);
-
-        reminder = reminderList.get(position);
+    private void updateReminder(long time, String title, int repeat, int position) {
+        Reminder reminder = reminderList.get(position);
         reminder.setTime(time);
         reminder.setTitle(title);
         reminder.setRepeat(repeat);
-        reminder.setRepeatType(repeatType);
-
         db.updateReminder(reminder);
         reminderList.set(position, reminder);
         adapter.notifyItemChanged(position);
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            RAPP.reminder_id = Math.toIntExact(id);
-        }
-        updateAlarm(RAPP.hourNotification, RAPP.minuteNotification, RAPP.reminder_id);
         emptyReminder();
+        createAlarm(RAPP.hourNotification, RAPP.minuteNotification);
     }
 
     // Delete Reminder
     private void deleteReminder(int position) {
-        reminder = reminderList.get(position);
-        int id = reminder.getId();
-
         db.deleteReminder(reminderList.get(position));
         reminderList.remove(position);
         adapter.notifyItemRemoved(position);
-
-        deleteAlarms(id);
         emptyReminder();
-    }
-
-    // Delete All Reminder
-    private void deleteAllReminders() {
-        int id = reminder.getId();
-        reminderList.get(id);
-        deleteAlarms(id);
     }
 
     // Show Empty Reminder List
@@ -333,11 +309,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Create Alarm
-    private void createAlarm(int hour, int minute, int id) {
+    // Alarm Manager
+    private void createAlarm(int hour, int minute) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, Receiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, RAPP.NOTIFICATION_REMINDER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
@@ -345,38 +321,10 @@ public class MainActivity extends AppCompatActivity {
         calendar.set(Calendar.MILLISECOND, 0);
 
         if (RAPP.repeatStatus == 1) {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), RAPP.intervalRepeatMilliseconds, pendingIntent);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
         }
         RAPP.repeatStatus = 0;
-    }
-
-    // Update Alarm
-    private void updateAlarm(int hour, int minute, int id) {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent(MainActivity.this, Receiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        if (RAPP.repeatStatus == 1) {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), RAPP.intervalRepeatMilliseconds, pendingIntent);
-        } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
-        }
-        RAPP.repeatStatus = 0;
-    }
-
-    // Delete Alarm
-    private void deleteAlarms(int id) {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent(MainActivity.this, Receiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.cancel(pendingIntent);
-        pendingIntent.cancel();
     }
 }
