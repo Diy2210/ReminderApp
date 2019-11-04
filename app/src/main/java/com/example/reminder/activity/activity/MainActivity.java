@@ -206,7 +206,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -298,7 +297,6 @@ public class MainActivity extends AppCompatActivity {
         deleteAlarm(id);
         emptyReminder();
     }
-
 
     // Show Empty Reminder List
     private void emptyReminder() {
