@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.reminder.activity.database.model.Reminder;
 
+import java.security.cert.Extension;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,22 +105,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public int updateReminder(Reminder reminder) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(Reminder.COLUMN_REMINDER_TIME, reminder.getTime());
-        values.put(Reminder.COLUMN_REMINDER_REPEAT, reminder.getRepeat());
-        values.put(Reminder.COLUMN_REMINDER_REPEAT_TYPE, reminder.getRepeatType());
-
-        return db.update(Reminder.TABLE_NAME, values, Reminder.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(reminder.getId())});
-    }
-
     public void deleteReminder(Reminder reminder) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(Reminder.TABLE_NAME, Reminder.COLUMN_ID + " = ?",
                 new String[]{String.valueOf(reminder.getId())});
         db.close();
+    }
+
+    public int updateReminder(Reminder reminder) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(Reminder.COLUMN_REMINDER_TIME, reminder.getTime());
+        values.put(Reminder.COLUMN_REMINDER_TITLE, reminder.getTitle());
+        values.put(Reminder.COLUMN_REMINDER_REPEAT, reminder.getRepeat());
+        values.put(Reminder.COLUMN_REMINDER_REPEAT_TYPE, reminder.getRepeatType());
+
+        return db.update(Reminder.TABLE_NAME, values, Reminder.COLUMN_ID + " = ?",
+                new String[]{String.valueOf(reminder.getId())});
     }
 
     public void deleteAllReminder() {

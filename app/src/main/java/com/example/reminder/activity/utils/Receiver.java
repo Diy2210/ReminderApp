@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -56,32 +57,58 @@ public class Receiver extends BroadcastReceiver {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, RAPP.NOTIFICATION_INTENT, i,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(context, RAPP.NOTIFICATION_ID)
-                        .setSmallIcon(R.drawable.ic_alert)
-                        .setContentTitle(RAPP.titleNotification)
-                        .setContentText(time)
-                        .setPriority(NotificationCompat.PRIORITY_MAX)
-                        .setAutoCancel(true)
-                        .setContentIntent(pendingIntent);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = context.getString(R.string.app_name);
-            String description = (RAPP.titleNotification);
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(RAPP.NOTIFICATION_ID, name, importance);
-            channel.setDescription(description);
-
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.createNotificationChannel(channel);
-
-            // 0 - ID of notification
-            notificationManager.notify(0, notificationBuilder.build());
+//        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, RAPP.NOTIFICATION_ID)
+                    .setSmallIcon(R.drawable.ic_alert)
+                    .setContentTitle(RAPP.titleNotification)
+                    .setContentText(time)
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setAutoCancel(true)
+                    .setContentIntent(pendingIntent);
+//            playSound(context);
+//        }
+//            mediaPlayer = new MediaPlayer();
+        if (RAPP.soundSetting) {
+            try {
+                mediaPlayer.setDataSource(context, RAPP.uriSetting);
+                final AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        playSound(context);
-        startVibrate();
-    }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                CharSequence name = context.getString(R.string.app_name);
+                String description = (RAPP.titleNotification);
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                NotificationChannel channel = new NotificationChannel(RAPP.NOTIFICATION_ID, name, importance);
+                channel.setDescription(description);
+
+                if (RAPP.soundSetting) {
+                    if (RAPP.uriSetting != null) {
+                        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                .setUsage(AudioAttributes.USAGE_ALARM)
+                                .build();
+                        channel.setSound(RAPP.uriSetting, audioAttributes);
+                    }
+                }
+
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.createNotificationChannel(channel);
+
+                // 0 - ID of notification
+                notificationManager.notify(0, notificationBuilder.build());
+            }
+
+            startVibrate();
+        }
+
 
     private void playSound(Context context) {
         if (RAPP.soundSetting) {

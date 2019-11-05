@@ -267,23 +267,46 @@ public class MainActivity extends AppCompatActivity {
 
     // Update Reminder
     private void updateReminder(long time, String title, int repeat, long repeatType, int position) {
-        long id = db.insertReminder(time, title, repeat, repeatType);
-        db.getReminder(id);
-
         reminder = reminderList.get(position);
-        reminder.setTime(time);
-        reminder.setTitle(title);
-        reminder.setRepeat(repeat);
+        int id1 = reminder.getId();
+        db.deleteReminder(reminderList.get(position));
+        reminderList.remove(position);
+        adapter.notifyItemRemoved(position);
 
-        db.updateReminder(reminder);
-        reminderList.set(position, reminder);
-        adapter.notifyItemChanged(position);
+        long id = db.insertReminder(time, title, repeat, repeatType);
+        reminder = db.getReminder(id);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            RAPP.reminder_id = Math.toIntExact(id);
+        if (reminder != null) {
+            reminderList.add(0, reminder);
+            adapter.notifyDataSetChanged();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                RAPP.reminder_id = Math.toIntExact(id);
+            }
+            createAlarm(RAPP.hourNotification, RAPP.minuteNotification, RAPP.reminder_id);
+            emptyReminder();
         }
-        updateAlarm(RAPP.hourNotification, RAPP.minuteNotification, RAPP.reminder_id);
-        emptyReminder();
+
+        deleteAlarm(id1);
+        //
+
+//        long id = db.insertReminder(time, title, repeat, repeatType);
+//        db.getReminder(id);
+
+//        reminder = reminderList.get(position);
+//        reminder.setTime(time);
+//        reminder.setTitle(title);
+//        reminder.setRepeat(repeat);
+//
+//        db.updateReminder(reminder);
+//        reminderList.set(position, reminder);
+//        adapter.notifyItemChanged(position);
+//
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+//            RAPP.reminder_id = Math.toIntExact(id);
+//        }
+//
+//        updateAlarm(RAPP.hourNotification, RAPP.minuteNotification, RAPP.reminder_id);
+//        emptyReminder();
     }
 
     // Delete Reminder
@@ -297,9 +320,6 @@ public class MainActivity extends AppCompatActivity {
 
         deleteAlarm(id);
         emptyReminder();
-//        recreate();
-//        finish();
-//        startActivity(getIntent());
     }
 
     // Show Empty Reminder List
@@ -312,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Alarm Manager
-    private void createAlarm(int hour, int minute,int id) {
+    private void createAlarm(int hour, int minute, int id) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(MainActivity.this, Receiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -356,8 +376,8 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
         finish();
-        overridePendingTransition( 0, 0);
+        overridePendingTransition(0, 0);
         startActivity(getIntent());
-        overridePendingTransition( 0, 0);
+        overridePendingTransition(0, 0);
     }
 }
