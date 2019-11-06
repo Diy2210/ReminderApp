@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Action Dialog
     private void showActionsDialog(final int position) {
-        CharSequence colors[] = new CharSequence[]{"Edit", "Delete"};
+        CharSequence colors[] = new CharSequence[]{"Edit reminder", "Delete reminder"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose option:");
