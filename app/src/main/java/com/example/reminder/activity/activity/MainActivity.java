@@ -131,7 +131,22 @@ public class MainActivity extends AppCompatActivity {
                 if (which == 0) {
                     showReminderDialog(true, reminderList.get(position), position);
                 } else {
-                    deleteReminder(position);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setCancelable(false);
+                    builder.setMessage(R.string.message_delete_reminder);
+                    builder.setPositiveButton(R.string.delete_btn,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    deleteReminder(position);
+                                }
+                            })
+                            .setNegativeButton("Cancel",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            dialog.dismiss();
+                                        }
+                                    }
+                            ).show();
                 }
             }
         });
