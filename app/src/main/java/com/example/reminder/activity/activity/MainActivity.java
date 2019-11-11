@@ -4,7 +4,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 
 import com.example.reminder.R;
@@ -53,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseHelper db;
     private long time;
     private ArrayAdapter<?> arrayAdapter;
+    private MenuItem item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
         final TimePicker timePicker = view.findViewById(R.id.timePicker);
         timePicker.setIs24HourView(true);
+
         final EditText titleET = view.findViewById(R.id.titleET);
         final Switch switchBtn = view.findViewById(R.id.switchBtn);
         final Spinner spinner = view.findViewById(R.id.spinner);
@@ -178,6 +179,15 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
         alertDialog.show();
 
+        // TimePicker set time when edit reminder
+        if (reminder != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(reminder.getTime());
+            timePicker.setCurrentHour(cal.get(Calendar.HOUR_OF_DAY));
+            timePicker.setCurrentMinute(cal.get(Calendar.MINUTE));
+        }
+
+        // Repeat Switch Button
         switchBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -219,7 +229,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 // Update Reminder Method
                 if (shouldUpdate && reminder != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         RAPP.hourNotification = timePicker.getHour();
                         RAPP.minuteNotification = timePicker.getMinute();
                         RAPP.titleNotification = titleET.getText().toString();
@@ -230,10 +239,8 @@ public class MainActivity extends AppCompatActivity {
                         long time = calendar.getTimeInMillis();
                         RAPP.millisNotification = time;
                         updateReminder(time, titleET.getText().toString(), RAPP.repeatStatus, RAPP.intervalRepeatMilliseconds, position);
-                    }
                 } else {
                     // Create Reminder Method
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         RAPP.hourNotification = timePicker.getHour();
                         RAPP.minuteNotification = timePicker.getMinute();
                         RAPP.titleNotification = titleET.getText().toString();
@@ -244,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
                         time = calendar.getTimeInMillis();
                         RAPP.millisNotification = time;
                         createReminder(time, titleET.getText().toString(), RAPP.repeatStatus, RAPP.intervalRepeatMilliseconds);
-                    }
                 }
             }
         });
@@ -257,9 +263,8 @@ public class MainActivity extends AppCompatActivity {
         if (reminder != null) {
             reminderList.add(0, reminder);
             adapter.notifyDataSetChanged();
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                RAPP.reminder_id = Math.toIntExact(id);
-            }
+            RAPP.reminder_id = Math.toIntExact(id);
+
             createAlarm(RAPP.hourNotification, RAPP.minuteNotification, RAPP.reminder_id);
             emptyReminder();
         }
@@ -279,9 +284,8 @@ public class MainActivity extends AppCompatActivity {
         if (reminder != null) {
             reminderList.add(0, reminder);
             adapter.notifyDataSetChanged();
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                RAPP.reminder_id = Math.toIntExact(id);
-            }
+            RAPP.reminder_id = Math.toIntExact(id);
+
             createAlarm(RAPP.hourNotification, RAPP.minuteNotification, RAPP.reminder_id);
             emptyReminder();
         }
