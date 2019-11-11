@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseHelper db;
     private long time;
     private ArrayAdapter<?> arrayAdapter;
-    private MenuItem item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,10 +120,10 @@ public class MainActivity extends AppCompatActivity {
 
     // Action Dialog
     private void showActionsDialog(final int position) {
-        CharSequence colors[] = new CharSequence[]{"Edit reminder", "Delete reminder"};
+        CharSequence colors[] = new CharSequence[]{getString(R.string.edit_reminder), getString(R.string.delete_reminder)};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose option:");
+        builder.setTitle(R.string.choose_option);
         builder.setItems(colors, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -132,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                     showReminderDialog(true, reminderList.get(position), position);
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setCancelable(false);
+                    builder.setCancelable(true);
                     builder.setMessage(R.string.message_delete_reminder);
                     builder.setPositiveButton(R.string.delete_btn,
                             new DialogInterface.OnClickListener() {
@@ -140,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                                     deleteReminder(position);
                                 }
                             })
-                            .setNegativeButton("Cancel",
+                            .setNegativeButton(R.string.cancel_btn,
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int whichButton) {
                                             dialog.dismiss();
@@ -180,11 +179,11 @@ public class MainActivity extends AppCompatActivity {
 
         alertDialogBuilderUserInput
                 .setCancelable(true)
-                .setPositiveButton(shouldUpdate ? "update" : "save", new DialogInterface.OnClickListener() {
+                .setPositiveButton(shouldUpdate ? getString(R.string.update_btn) : getString(R.string.save_btn), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogBox, int id) {
                     }
                 })
-                .setNegativeButton("cancel",
+                .setNegativeButton(R.string.cancel_btn,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialogBox, int id) {
                                 dialogBox.cancel();
@@ -194,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
         alertDialog.show();
 
-        // TimePicker set time when edit reminder
+        // TimePicker set time for edit reminder
         if (reminder != null) {
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(reminder.getTime());
@@ -221,9 +220,8 @@ public class MainActivity extends AppCompatActivity {
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(arrayAdapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected(AdapterView<?> parent, View itemSelected,
-                                       int selectedItemPosition, long selectedId) {
-                String[] size_values = getResources().getStringArray(R.array.repeat_interval_milliseconds);
+            public void onItemSelected(AdapterView<?> parent, View itemSelected, int selectedItemPosition, long selectedId) {
+                final String[] size_values = getResources().getStringArray(R.array.repeat_interval_milliseconds);
                 RAPP.intervalRepeatMilliseconds = Integer.parseInt(size_values[selectedItemPosition]);
             }
 
@@ -231,13 +229,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Set value for spinner
+        if (reminder != null) {
+            if (reminder.getRepeatType() == 60000) {
+                spinner.setSelection(0);
+            } else if (reminder.getRepeatType() == 300000) {
+                spinner.setSelection(1);
+            } else if (reminder.getRepeatType() == 600000) {
+                spinner.setSelection(2);
+            } else if (reminder.getRepeatType() == 900000) {
+                spinner.setSelection(3);
+            } else if (reminder.getRepeatType() == 1200000) {
+                spinner.setSelection(4);
+            } else if (reminder.getRepeatType() == 1800000) {
+                spinner.setSelection(5);
+            } else if (reminder.getRepeatType() == 3600000) {
+                spinner.setSelection(6);
+            } else if (reminder.getRepeatType() == 86400000) {
+                spinner.setSelection(7);
+            }
+        }
 
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Check Empty Title
+                // Check Empty Reminder Title
                 if (TextUtils.isEmpty(titleET.getText().toString())) {
-                    Toast.makeText(MainActivity.this, "Enter title!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.enter_title), Toast.LENGTH_LONG).show();
                     return;
                 } else {
                     alertDialog.dismiss();
@@ -289,43 +307,13 @@ public class MainActivity extends AppCompatActivity {
     private void updateReminder(long time, String title, int repeat, long repeatType, int position) {
         reminder = reminderList.get(position);
         int id1 = reminder.getId();
+
         db.deleteReminder(reminderList.get(position));
         reminderList.remove(position);
-        adapter.notifyItemRemoved(position);
 
-        long id = db.insertReminder(time, title, repeat, repeatType);
-        reminder = db.getReminder(id);
-
-        if (reminder != null) {
-            reminderList.add(0, reminder);
-            adapter.notifyDataSetChanged();
-            RAPP.reminder_id = Math.toIntExact(id);
-
-            createAlarm(RAPP.hourNotification, RAPP.minuteNotification, RAPP.reminder_id);
-            emptyReminder();
-        }
+        createReminder(time, title, repeat, repeatType);
 
         deleteAlarm(id1);
-        //
-
-//        long id = db.insertReminder(time, title, repeat, repeatType);
-//        db.getReminder(id);
-
-//        reminder = reminderList.get(position);
-//        reminder.setTime(time);
-//        reminder.setTitle(title);
-//        reminder.setRepeat(repeat);
-//
-//        db.updateReminder(reminder);
-//        reminderList.set(position, reminder);
-//        adapter.notifyItemChanged(position);
-//
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-//            RAPP.reminder_id = Math.toIntExact(id);
-//        }
-//
-//        updateAlarm(RAPP.hourNotification, RAPP.minuteNotification, RAPP.reminder_id);
-//        emptyReminder();
     }
 
     // Delete Reminder
@@ -366,26 +354,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
         }
-        RAPP.repeatStatus = 0;
-    }
-
-    // Update Alarm Manager
-    private void updateAlarm(int hour, int minute, int id) {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent(MainActivity.this, Receiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-
-        if (RAPP.repeatStatus == 1) {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), RAPP.intervalRepeatMilliseconds, pendingIntent);
-        } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
-        }
-        RAPP.repeatStatus = 0;
     }
 
     // Delete Alarm Manager
@@ -394,9 +362,5 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, Receiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
-        finish();
-        overridePendingTransition(0, 0);
-        startActivity(getIntent());
-        overridePendingTransition(0, 0);
     }
 }
