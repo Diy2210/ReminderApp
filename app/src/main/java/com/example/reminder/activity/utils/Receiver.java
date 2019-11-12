@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -107,6 +108,8 @@ public class Receiver extends BroadcastReceiver {
                 int importance = NotificationManager.IMPORTANCE_HIGH;
                 NotificationChannel channel = new NotificationChannel(RAPP.NOTIFICATION_ID, name, importance);
                 channel.setDescription(description);
+                channel.enableLights(true);
+                channel.setLightColor(Color.WHITE);
 
                 if (RAPP.soundSetting) {
                     if (RAPP.uriSetting != null) {
