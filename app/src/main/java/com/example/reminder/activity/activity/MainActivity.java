@@ -262,28 +262,28 @@ public class MainActivity extends AppCompatActivity {
                 }
                 // Update Reminder Method
                 if (shouldUpdate && reminder != null) {
-                        RAPP.hourNotification = timePicker.getHour();
-                        RAPP.minuteNotification = timePicker.getMinute();
-                        RAPP.titleNotification = titleET.getText().toString();
+                    RAPP.hourNotification = timePicker.getHour();
+                    RAPP.minuteNotification = timePicker.getMinute();
+                    RAPP.titleNotification = titleET.getText().toString();
 
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
-                        calendar.set(Calendar.MINUTE, timePicker.getMinute());
-                        long time = calendar.getTimeInMillis();
-                        RAPP.millisNotification = time;
-                        updateReminder(time, titleET.getText().toString(), RAPP.repeatStatus, RAPP.intervalRepeatMilliseconds, position);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+                    calendar.set(Calendar.MINUTE, timePicker.getMinute());
+                    long time = calendar.getTimeInMillis();
+                    RAPP.millisNotification = time;
+                    updateReminder(time, titleET.getText().toString(), RAPP.repeatStatus, RAPP.intervalRepeatMilliseconds, position);
                 } else {
                     // Create Reminder Method
-                        RAPP.hourNotification = timePicker.getHour();
-                        RAPP.minuteNotification = timePicker.getMinute();
-                        RAPP.titleNotification = titleET.getText().toString();
+                    RAPP.hourNotification = timePicker.getHour();
+                    RAPP.minuteNotification = timePicker.getMinute();
+                    RAPP.titleNotification = titleET.getText().toString();
 
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
-                        calendar.set(Calendar.MINUTE, timePicker.getMinute());
-                        time = calendar.getTimeInMillis();
-                        RAPP.millisNotification = time;
-                        createReminder(time, titleET.getText().toString(), RAPP.repeatStatus, RAPP.intervalRepeatMilliseconds);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+                    calendar.set(Calendar.MINUTE, timePicker.getMinute());
+                    time = calendar.getTimeInMillis();
+                    RAPP.millisNotification = time;
+                    createReminder(time, titleET.getText().toString(), RAPP.repeatStatus, RAPP.intervalRepeatMilliseconds);
                 }
             }
         });

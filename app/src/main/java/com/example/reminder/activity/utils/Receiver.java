@@ -31,6 +31,7 @@ public class Receiver extends BroadcastReceiver {
     private SharedPreferences getSound, getAlarms, getVibration;
     private MediaPlayer mediaPlayer;
     private Vibrator vibrator;
+    private String repeat = "";
 
     public Receiver() {
     }
@@ -49,25 +50,43 @@ public class Receiver extends BroadcastReceiver {
         getVibration = PreferenceManager.getDefaultSharedPreferences(context);
         RAPP.vibrationSetting = getVibration.getBoolean("setting_vibration", true);
 
+        // Date format for time reminder
         DateFormat simple = new SimpleDateFormat("HH:mm");
         Date result = new Date(RAPP.millisNotification);
         String time = simple.format(result);
+
+        if (RAPP.intervalRepeatMilliseconds == 60000) {
+            repeat = context.getString(R.string.repeat_after_1);
+        }else if (RAPP.intervalRepeatMilliseconds == 300000) {
+            repeat = context.getString(R.string.repeat_after_5);
+        } else if (RAPP.intervalRepeatMilliseconds == 600000) {
+            repeat = context.getString(R.string.repeat_after_10);
+        } else if (RAPP.intervalRepeatMilliseconds == 900000) {
+            repeat = context.getString(R.string.repeat_after_15);
+        } else if (RAPP.intervalRepeatMilliseconds == 1200000) {
+            repeat = context.getString(R.string.repeat_after_20);
+        } else if (RAPP.intervalRepeatMilliseconds == 1800000) {
+            repeat = context.getString(R.string.repeat_after_30);
+        } else if (RAPP.intervalRepeatMilliseconds == 3600000) {
+            repeat = context.getString(R.string.repeat_after_hour);
+        } else {
+            repeat = context.getString(R.string.repeat_once_day);
+        }
 
         Intent i = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, RAPP.NOTIFICATION_INTENT, i,
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
-//        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, RAPP.NOTIFICATION_ID)
+                    .setColor(context.getResources().getColor(R.color.colorPrimary))
                     .setSmallIcon(R.drawable.ic_alert)
                     .setContentTitle(RAPP.titleNotification)
                     .setContentText(time)
+                    .setSubText(repeat)
                     .setPriority(NotificationCompat.PRIORITY_MAX)
                     .setAutoCancel(true)
                     .setContentIntent(pendingIntent);
-//            playSound(context);
-//        }
-//            mediaPlayer = new MediaPlayer();
+
         if (RAPP.soundSetting) {
             try {
                 mediaPlayer.setDataSource(context, RAPP.uriSetting);
@@ -108,24 +127,6 @@ public class Receiver extends BroadcastReceiver {
 
             startVibrate();
         }
-
-
-    private void playSound(Context context) {
-        if (RAPP.soundSetting) {
-            mediaPlayer = new MediaPlayer();
-            try {
-                mediaPlayer.setDataSource(context, RAPP.uriSetting);
-                final AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
-                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     private void startVibrate() {
         if (RAPP.vibrationSetting) {

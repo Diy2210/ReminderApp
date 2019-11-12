@@ -26,11 +26,17 @@
     <string name="setting_enable_vibration">Enable Vibration</string>
 
     <!-- Repeat Status -->
+    <string name="repeat_after_1">Repeat after 1 minute</string>
+    <string name="repeat_after_5">Repeat after 5 minutes</string>
+    <string name="repeat_after_10">Repeat after 10 minutes</string>
+    <string name="repeat_after_15">Repeat after 15 minutes</string>
+    <string name="repeat_after_20">Repeat after 20 minutes</string>
+    <string name="repeat_after_30">Repeat after 30 minutes</string>
     <string name="repeat_after_hour">Repeat after 1 hour</string>
+    <string name="repeat_once_day">Once a day</string>
     <string name="repeat_after">Repeat after </string>
     <string name="minute"> minute</string>
     <string name="minutes"> minutes</string>
-    <string name="repeat_once_day">Once a day</string>
 
     <!-- Spinner Array List Strings Value-->
     <string-array name="repeat_interval">
