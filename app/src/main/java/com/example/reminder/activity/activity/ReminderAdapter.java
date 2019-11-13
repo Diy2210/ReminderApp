@@ -1,6 +1,8 @@
 package com.example.reminder.activity.activity;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +59,16 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.MyView
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         Reminder reminder = reminderList.get(position);
+
+        SharedPreferences getTheme = PreferenceManager.getDefaultSharedPreferences(context);
+        RAPP.nightTheme = getTheme.getBoolean("setting_theme", false);
+        if (RAPP.nightTheme) {
+            holder.img.setImageResource(R.drawable.ic_alert_white);
+            holder.repeatImg.setImageResource(R.drawable.ic_repeat_white);
+        } else {
+            holder.img.setImageResource(R.drawable.ic_alert);
+            holder.repeatImg.setImageResource(R.drawable.ic_repeat);
+        }
 
         DateFormat timeReminder = new SimpleDateFormat("HH:mm");
         Date resultTime = new Date(reminder.getTime());

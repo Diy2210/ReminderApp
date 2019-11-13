@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/colorBackground">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -12,7 +13,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="@color/colorBackground">
 
             <TimePicker
                 android:id="@+id/timePicker"
@@ -32,6 +34,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:hint="@string/title"
+                android:textColor="@color/colorText"
                 android:theme="@style/EditTextTheme"
                 android:imeOptions="actionDone"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -46,6 +49,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="@string/repeat_notification"
+                android:textColor="@color/colorText"
                 android:theme="@style/SwitchButtonTheme"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -61,6 +65,7 @@
                 android:layout_marginBottom="16dp"
                 android:spinnerMode="dropdown"
                 android:visibility="gone"
+                android:theme="@style/SpinnerTheme"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

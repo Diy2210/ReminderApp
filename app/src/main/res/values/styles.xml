@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -17,17 +17,21 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <!-- Theme TimePicker -->
-    <style name="TimePickerTheme" parent="Theme.AppCompat.Light.Dialog">
+    <style name="TimePickerTheme" parent="Theme.AppCompat.DayNight.Dialog">
         <item name="colorAccent">@color/colorPrimary</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
     <!-- Theme EditText -->
-    <style name="EditTextTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="EditTextTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="colorControlNormal">@color/colorPrimary</item>
         <item name="colorControlActivated">@color/colorPrimary</item>
         <item name="colorControlHighlight">@color/colorAccent</item>
+    </style>
+
+    <style name="SpinnerTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <item name="android:background">@color/colorBackground</item>
     </style>
 
     <!-- Theme Switch Button -->

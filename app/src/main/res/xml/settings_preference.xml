@@ -11,10 +11,15 @@
         android:key="setting_sound"
         android:defaultValue="true"
         android:title="Sound"
-        android:summary="Enable sound"/>
+        android:summary="enable sound"/>
     <SwitchPreference
         android:key="setting_vibration"
         android:defaultValue="true"
         android:title="Vibration"
-        android:summary="Enable vibration"/>
+        android:summary="enable vibration"/>
+    <SwitchPreference
+        android:key="setting_theme"
+        android:defaultValue="false"
+        android:title="Night Theme"
+        android:summary="come to the dark side"/>
 </PreferenceScreen>

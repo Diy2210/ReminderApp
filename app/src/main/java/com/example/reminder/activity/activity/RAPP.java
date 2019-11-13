@@ -18,4 +18,5 @@ public class RAPP extends Application {
     public static int repeatStatus = 0;
     public static long intervalRepeatMilliseconds = 0;
     public static long millisNotification = 0;
+    public static boolean nightTheme = false;
 }
