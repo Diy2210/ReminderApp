@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseHelper db;
     private long time;
     private ArrayAdapter<?> arrayAdapter;
+    private static long back_pressed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -354,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
         }
+        RAPP.repeatStatus = 0;
     }
 
     // Delete Alarm Manager
@@ -362,5 +364,15 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, Receiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
+
+        RAPP.repeatStatus = 0;
+    }
+
+    // Back Button Exit App
+    @Override
+    public void onBackPressed() {
+        if (back_pressed + 2000 > System.currentTimeMillis()) super.onBackPressed();
+        Toast.makeText(this, R.string.click_back_exit, Toast.LENGTH_SHORT).show();
+        back_pressed = System.currentTimeMillis();
     }
 }
